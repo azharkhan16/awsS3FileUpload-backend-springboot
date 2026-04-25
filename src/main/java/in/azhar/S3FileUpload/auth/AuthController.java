@@ -4,6 +4,7 @@ import in.azhar.S3FileUpload.dto.AuthRequest;
 import in.azhar.S3FileUpload.dto.AuthResponse;
 import in.azhar.S3FileUpload.entity.Role;
 import in.azhar.S3FileUpload.entity.User;
+import in.azhar.S3FileUpload.exception.InvalidCredentialsException;
 import in.azhar.S3FileUpload.repository.UserRepository;
 import in.azhar.S3FileUpload.security.JwtUtil;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -47,14 +48,14 @@ public class AuthController {
     public AuthResponse login(@RequestBody AuthRequest request) {
 
         User user = repo.findByEmail(request.getEmail())
-                .orElseThrow(() -> new RuntimeException("User not found"));
+                .orElseThrow(() -> new InvalidCredentialsException("Invalid email or password."));
 
         if (!user.isActive()) {
             throw new RuntimeException("User is deactivated");
         }
 
         if (!encoder.matches(request.getPassword(), user.getPassword())) {
-            throw new RuntimeException("Invalid email or password");
+            throw new InvalidCredentialsException("Invalid email or password.");
         }
 
         String token = jwtUtil.generateToken(user.getEmail(), user.getRole().name());
