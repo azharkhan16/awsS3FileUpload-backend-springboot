@@ -15,28 +15,33 @@ public class FileController {
     @Autowired
     private FileService fileService;
 
-    @PostMapping
+    // ADMIN access only
+    @PostMapping("/upload")
     public ResponseEntity<?> upload(@RequestParam("file") MultipartFile file) throws IOException {
         return ResponseEntity.ok(fileService.upload(file));
     }
 
+    // USER + ADMIN access
     @GetMapping
     public ResponseEntity<?> getAll() {
         return ResponseEntity.ok(fileService.getAllFiles());
     }
 
+    // USER + ADMIN
     @GetMapping("/{fileName}")
     public ResponseEntity<?> getFile(@PathVariable String fileName) {
         return ResponseEntity.ok(fileService.getFile(fileName));
     }
 
-    @DeleteMapping("/{fileName}")
+    // ADMIN access only
+    @DeleteMapping("/delete/{fileName}")
     public ResponseEntity<?> delete(@PathVariable String fileName) {
         fileService.deleteFile(fileName);
         return ResponseEntity.ok("Deleted");
     }
 
-    @PutMapping("/{fileName}")
+    // ADMIN access only
+    @PutMapping("/update/{fileName}")
     public ResponseEntity<?> update(@PathVariable String fileName,
                                     @RequestParam MultipartFile file) throws IOException {
         return ResponseEntity.ok(fileService.updateFile(fileName, file));
