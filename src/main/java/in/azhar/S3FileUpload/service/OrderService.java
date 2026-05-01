@@ -12,13 +12,20 @@ public class OrderService {
     @Autowired
     private OrderRepository repo;
 
+    @Autowired
+    private RazorpayService razorpayService;
+
     // creating order (before payment)
-    public Order createOrder(Long userId, Long courseId) {
+    public Order createOrder(Long userId, Long courseId, int amount) throws Exception {
+
+        // creating razorpay order
+        com.razorpay.Order razorpayOrder = razorpayService.createRazorpayOrder(amount);
 
         Order order = new Order();
         order.setUserId(userId);
         order.setCourseId(courseId);
         order.setStatus(Status.PENDING);
+        order.setOrderId(razorpayOrder.get("id"));
 
         return repo.save(order);
     }
