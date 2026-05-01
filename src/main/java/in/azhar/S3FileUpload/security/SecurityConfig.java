@@ -27,7 +27,8 @@ public class SecurityConfig {
                         // public -> no authentication required
                         .requestMatchers("/auth/**").permitAll()
 
-                        //----------------------FILE APIs-----------------------------
+
+                        //-----------------------------FILE APIs-----------------------------
                         // ADMIN access only (upload/update/delete)
                         .requestMatchers("/files/upload").hasRole("ADMIN")
                         .requestMatchers("/files/update/**").hasRole("ADMIN")
@@ -36,13 +37,20 @@ public class SecurityConfig {
                         // USER + ADMIN access
                         .requestMatchers("/files/**").hasAnyRole("ADMIN", "USER")
 
-                        //----------------------COURSE APIs-----------------------------
+
+                        //------------------------------COURSE APIs-----------------------------
                         // USER + ADMIN access
                         .requestMatchers(HttpMethod.GET, "/courses/**").hasAnyRole("ADMIN", "USER")
 
                         // ADMIN access only (create/update/delete)
                         .requestMatchers("/courses").hasRole("ADMIN")
                         .requestMatchers("/courses/**").hasRole("ADMIN")
+
+
+                        //-----------------------------ORDER APIs-----------------------------
+                        // USER + ADMIN (order create & success)
+                        .requestMatchers("/orders/**").hasAnyRole("ADMIN", "USER")
+
 
                         //----------------------ADMIN APIs-----------------------------
                         // ADMIN access only (activate/deactivate users)

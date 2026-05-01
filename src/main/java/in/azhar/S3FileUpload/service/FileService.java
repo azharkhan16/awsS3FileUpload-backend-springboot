@@ -25,6 +25,8 @@ public class FileService {
 
     @Autowired
     private FileRepository fileRepository;
+    @Autowired
+    private OrderService orderService;
 
     @Value("${amazon.s3.bucket}")
     private String bucket;
@@ -67,7 +69,12 @@ public class FileService {
                 .orElseThrow(() -> new RuntimeException("File not found"));
     }
 
-    public List<FileEntity> getByCourseId(Long courseId) {
+    public List<FileEntity> getByCourseId(Long courseId, Long userId) {
+
+        if (!orderService.hasAccess(userId, courseId)) {
+            throw new RuntimeException("You have not purchased this course");
+        }
+
         return fileRepository.findByCourseId(courseId);
     }
 
