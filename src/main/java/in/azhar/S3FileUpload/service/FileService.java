@@ -4,7 +4,10 @@ import com.amazonaws.services.s3.AmazonS3;
 import com.amazonaws.services.s3.model.PutObjectRequest;
 import in.azhar.S3FileUpload.dto.FileResponse;
 import in.azhar.S3FileUpload.entity.FileEntity;
+import in.azhar.S3FileUpload.entity.User;
 import in.azhar.S3FileUpload.repository.FileRepository;
+import in.azhar.S3FileUpload.repository.UserRepository;
+import in.azhar.S3FileUpload.security.JwtUtil;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
@@ -21,10 +24,17 @@ import java.util.UUID;
 public class FileService {
 
     @Autowired
+    private JwtUtil jwtUtil;
+
+    @Autowired
+    private UserRepository userRepository;
+
+    @Autowired
     private AmazonS3 amazonS3;
 
     @Autowired
     private FileRepository fileRepository;
+
     @Autowired
     private OrderService orderService;
 
@@ -60,23 +70,34 @@ public class FileService {
         return new FileResponse(fileName, url, file.getSize());
     }
 
+
     public List<FileEntity> getAllFiles() {
         return fileRepository.findAll();
     }
+
 
     public FileEntity getFile(String fileName) {
         return fileRepository.findByFileName(fileName)
                 .orElseThrow(() -> new RuntimeException("File not found"));
     }
 
-    public List<FileEntity> getByCourseId(Long courseId, Long userId) {
 
-        if (!orderService.hasAccess(userId, courseId)) {
+    public List<FileEntity> getByCourseId(Long courseId, String authHeader) {
+
+        // 1 -> Extracting user from JWT
+        String token = authHeader.substring(7);
+        String email = jwtUtil.extractEmail(token);
+
+        User user = userRepository.findByEmail(email)
+                .orElseThrow(() -> new RuntimeException("User not found"));
+
+        if (!orderService.hasAccess(user.getId(), courseId)) {
             throw new RuntimeException("You have not purchased this course");
         }
 
         return fileRepository.findByCourseId(courseId);
     }
+
 
     public void deleteFile(String fileName) {
         FileEntity file = getFile(fileName);
@@ -84,6 +105,7 @@ public class FileService {
         amazonS3.deleteObject(bucket, fileName);
         fileRepository.delete(file);
     }
+
 
     public FileResponse updateFile(String fileName, MultipartFile newFile) throws IOException {
 

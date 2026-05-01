@@ -37,8 +37,8 @@ public class FileController {
     // USER + ADMIN access
     @GetMapping("/course/{courseId}")
     public ResponseEntity<?> getByCourse(@PathVariable Long courseId,
-                                         @RequestHeader("userId") Long userId) {
-        return ResponseEntity.ok(fileService.getByCourseId(courseId, userId));
+                                         @RequestHeader("Authorization") String authHeader) {
+        return ResponseEntity.ok(fileService.getByCourseId(courseId, authHeader));
     }
 
     // ADMIN access only
