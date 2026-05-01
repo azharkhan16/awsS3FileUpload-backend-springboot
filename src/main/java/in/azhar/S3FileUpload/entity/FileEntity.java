@@ -16,6 +16,7 @@ public class FileEntity {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
+    private Long courseId;        // to associate file with a course
     private String fileName;      // unique name (UUID)
     private String originalName;  // original file name
     private String url;

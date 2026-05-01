@@ -17,8 +17,9 @@ public class FileController {
 
     // ADMIN access only
     @PostMapping("/upload")
-    public ResponseEntity<?> upload(@RequestParam("file") MultipartFile file) throws IOException {
-        return ResponseEntity.ok(fileService.upload(file));
+    public ResponseEntity<?> upload(@RequestParam("file") MultipartFile file,
+                                    @RequestParam Long courseId) throws IOException {
+        return ResponseEntity.ok(fileService.upload(file, courseId));
     }
 
     // USER + ADMIN access
@@ -31,6 +32,12 @@ public class FileController {
     @GetMapping("/{fileName}")
     public ResponseEntity<?> getFile(@PathVariable String fileName) {
         return ResponseEntity.ok(fileService.getFile(fileName));
+    }
+
+    // USER + ADMIN access
+    @GetMapping("/course/{courseId}")
+    public ResponseEntity<?> getByCourse(@PathVariable Long courseId) {
+        return ResponseEntity.ok(fileService.getByCourseId(courseId));
     }
 
     // ADMIN access only

@@ -29,7 +29,7 @@ public class FileService {
     @Value("${amazon.s3.bucket}")
     private String bucket;
 
-    public FileResponse upload(MultipartFile file) throws IOException {
+    public FileResponse upload(MultipartFile file, Long courseId) throws IOException {
 
         String originalName = file.getOriginalFilename();
         String fileName = UUID.randomUUID() + "_" + originalName;
@@ -45,6 +45,7 @@ public class FileService {
         String url = amazonS3.getUrl(bucket, fileName).toString();
 
         FileEntity entity = new FileEntity();
+        entity.setCourseId(courseId); // associate file with course
         entity.setFileName(fileName);
         entity.setOriginalName(originalName);
         entity.setUrl(url);
@@ -64,6 +65,10 @@ public class FileService {
     public FileEntity getFile(String fileName) {
         return fileRepository.findByFileName(fileName)
                 .orElseThrow(() -> new RuntimeException("File not found"));
+    }
+
+    public List<FileEntity> getByCourseId(Long courseId) {
+        return fileRepository.findByCourseId(courseId);
     }
 
     public void deleteFile(String fileName) {
