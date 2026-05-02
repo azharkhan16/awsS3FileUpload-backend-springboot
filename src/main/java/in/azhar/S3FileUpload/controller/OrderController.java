@@ -22,8 +22,12 @@ public class OrderController {
     // payment success callback or to verify payment success
     @PostMapping("/verify")
     public ResponseEntity<?> verify(@RequestParam Long orderId,
-                                     @RequestParam String paymentId) {
+                                    @RequestParam String razorpayOrderId,
+                                    @RequestParam String paymentId,
+                                    @RequestParam String signature) {
 
-        return ResponseEntity.ok(service.markSuccess(orderId, paymentId));
+        return ResponseEntity.ok(
+                service.verifyPayment(orderId, razorpayOrderId, paymentId, signature)
+        );
     }
 }

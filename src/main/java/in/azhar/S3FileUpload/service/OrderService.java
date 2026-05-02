@@ -43,7 +43,7 @@ public class OrderService {
         Course course = courseRepository.findById(courseId)
                 .orElseThrow(() -> new RuntimeException("Course not found"));
 
-        int amount = (int) (course.getPrice() * 100);
+        int amount = (int) course.getPrice();
 
         // creating razorpay order
         com.razorpay.Order razorpayOrder = razorpayService.createRazorpayOrder(amount);
@@ -57,14 +57,26 @@ public class OrderService {
         return repo.save(order);
     }
 
-    // marking payment success
-    public Order markSuccess(Long orderId, String paymentId) {
 
-        Order order = repo.findById(orderId)
+    public Order verifyPayment(Long orderDbId,
+                               String razorpayOrderId,
+                               String paymentId,
+                               String signature) {
+
+        Order order = repo.findById(orderDbId)
                 .orElseThrow(() -> new RuntimeException("Order not found"));
-
-        order.setStatus(Status.SUCCESS);
+        // signature verify
+        boolean isValid = razorpayService.verifyPayment(
+                razorpayOrderId,
+                paymentId,
+                signature
+        );
+        if (!isValid) {
+            throw new RuntimeException("Invalid payment signature ");
+        }
+        //  success
         order.setPaymentId(paymentId);
+        order.setStatus(Status.SUCCESS);
 
         return repo.save(order);
     }

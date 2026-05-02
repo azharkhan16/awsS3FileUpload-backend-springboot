@@ -26,6 +26,7 @@ public class SecurityConfig {
 
                         // public -> no authentication required
                         .requestMatchers("/auth/**").permitAll()
+                        .requestMatchers("/payment.html").permitAll()
 
 
                         //-----------------------------FILE APIs-----------------------------

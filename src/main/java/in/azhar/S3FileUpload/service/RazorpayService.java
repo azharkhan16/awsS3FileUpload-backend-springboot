@@ -26,4 +26,29 @@ public class RazorpayService {
 
         return client.orders.create(options);
     }
+
+    // verify signature
+    public boolean verifyPayment(String orderId, String paymentId, String signature) {
+
+        try {
+            String data = orderId + "|" + paymentId;
+            String generatedSignature = hmacSHA256(data, secret);
+            return generatedSignature.equals(signature);
+        } catch (Exception e) {
+            return false;
+        }
+    }
+
+    private String hmacSHA256(String data, String secret) throws Exception {
+
+        javax.crypto.Mac mac = javax.crypto.Mac.getInstance("HmacSHA256");
+        javax.crypto.spec.SecretKeySpec keySpec =
+                new javax.crypto.spec.SecretKeySpec(secret.getBytes(), "HmacSHA256");
+
+        mac.init(keySpec);
+
+        byte[] hash = mac.doFinal(data.getBytes());
+
+        return new String(org.apache.commons.codec.binary.Hex.encodeHex(hash));
+    }
 }

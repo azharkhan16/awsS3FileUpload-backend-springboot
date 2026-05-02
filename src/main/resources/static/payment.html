@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Razorpay Payment</title>
+    <script src="https://checkout.razorpay.com/v1/checkout.js"></script>
+</head>
+<body>
+
+<h2>Payment Test</h2>
+
+<button onclick="createOrder()">Create Order</button>
+<button onclick="payNow()">Pay Now</button>
+
+<script>
+
+    let orderData = null;
+    const TOKEN = "eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJhemhhckBnbWFpbC5jb20iLCJyb2xlIjoiVVNFUiIsImlhdCI6MTc3NzcyNTM4NSwiZXhwIjoxNzc3NzI4OTg1fQ.97riewhQ0yOAOufsZhmaOYzby0TLJnkmkLM92Jz3VKk";
+
+    async function createOrder() {
+
+        const res = await fetch("http://localhost:8080/orders/1", {
+            method: "POST",
+            headers: {
+                "Authorization": "Bearer " + TOKEN
+            }
+        });
+
+        orderData = await res.json();
+
+        console.log("Order Created:", orderData);
+        alert("Order Created");
+    }
+
+    function payNow() {
+
+        if (!orderData) {
+            alert("Pehle order create karo");
+            return;
+        }
+
+        const options = {
+            key: "rzp_test_Sk6QQ8RYFzTZlU",
+            amount: 50000,
+            currency: "INR",
+            name: "Course Payment",
+            order_id: orderData.orderId,
+
+            handler: async function (response) {
+
+                console.log("Payment Success:", response);
+
+                // verify API
+                await fetch("http://localhost:8080/orders/verify", {
+                    method: "POST",
+                    headers: {
+                        "Content-Type": "application/x-www-form-urlencoded",
+                        "Authorization": "Bearer " + TOKEN
+                    },
+                    body: new URLSearchParams({
+                        orderId: orderData.id,
+                        razorpayOrderId: response.razorpay_order_id,
+                        paymentId: response.razorpay_payment_id,
+                        signature: response.razorpay_signature
+                    })
+                });
+
+                alert("Payment Verified");
+            }
+        };
+        const rzp = new Razorpay(options);
+        rzp.open();
+    }
+
+</script>
+
+</body>
+</html>
