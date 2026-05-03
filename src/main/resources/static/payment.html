@@ -14,11 +14,11 @@
 <script>
 
     let orderData = null;
-    const TOKEN = "eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJ1c2VyQGdtYWlsLmNvbSIsInJvbGUiOiJVU0VSIiwiaWF0IjoxNzc3Nzg5MTk3LCJleHAiOjE3Nzc3OTI3OTd9.JEBhiudc2zEnC_YASOae7Rm1wXxyyjF_7xZk1nz4BMg";
+    const TOKEN = "eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJ1c2VyQGdtYWlsLmNvbSIsInJvbGUiOiJVU0VSIiwiaWF0IjoxNzc3ODA0MzExLCJleHAiOjE3Nzc4MDc5MTF9.ChHOIWYdphPeu0wpy6qOnUr8vJhz5mZCPUJ1HqxJlYM";
 
     async function createOrder() {
 
-        const res = await fetch("http://localhost:8080/orders/11", {
+        const res = await fetch("http://localhost:8080/orders/2", {
             method: "POST",
             headers: {
                 "Authorization": "Bearer " + TOKEN

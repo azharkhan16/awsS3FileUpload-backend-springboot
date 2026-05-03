@@ -59,20 +59,20 @@ public class FileService {
         amazonS3.putObject(new PutObjectRequest(bucket, fileName, convertedFile));
         convertedFile.delete();
 
-        String url = amazonS3.getUrl(bucket, fileName).toString();
+//        String url = amazonS3.getUrl(bucket, fileName).toString();
 
         FileEntity entity = new FileEntity();
         entity.setCourseId(courseId); // associate file with course
         entity.setFileName(fileName);
         entity.setOriginalName(originalName);
-        entity.setUrl(url);
+//        entity.setUrl(url);
         entity.setContentType(file.getContentType());
         entity.setSize(file.getSize());
         entity.setCreatedAt(LocalDateTime.now());
 
         fileRepository.save(entity);
 
-        return new FileResponse(fileName, url, file.getSize());
+        return new FileResponse(fileName, file.getSize());
     }
 
 
@@ -128,16 +128,17 @@ public class FileService {
         amazonS3.putObject(bucket, newFileName, convertedFile);
         convertedFile.delete();
 
-        String url = amazonS3.getUrl(bucket, newFileName).toString();
+//        String url = amazonS3.getUrl(bucket, newFileName).toString();
 
         oldFile.setFileName(newFileName);
-        oldFile.setUrl(url);
+        oldFile.setOriginalName(newFile.getOriginalFilename());
+//        oldFile.setUrl(url);
         oldFile.setSize(newFile.getSize());
         oldFile.setContentType(newFile.getContentType());
 
         fileRepository.save(oldFile);
 
-        return new FileResponse(newFileName, url, newFile.getSize());
+        return new FileResponse(newFileName, newFile.getSize());
     }
 
 

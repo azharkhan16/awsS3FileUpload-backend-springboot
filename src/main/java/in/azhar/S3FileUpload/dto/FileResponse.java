@@ -8,6 +8,6 @@ import lombok.Data;
 public class FileResponse {
 
     private String fileName;
-    private String url;
+//  private String url;   we are not sending url in response, due to security concerns.Instead, we send presigned URL.
     private long size;
 }

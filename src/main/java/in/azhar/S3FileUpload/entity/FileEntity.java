@@ -19,7 +19,7 @@ public class FileEntity {
     private Long courseId;        // to associate file with a course
     private String fileName;      // unique name (UUID)
     private String originalName;  // original file name
-    private String url;
+//  private String url;    we are not sending url in response, due to security concerns.Instead, we send presigned URL.
     private String contentType;
     private long size;
     private LocalDateTime createdAt;
