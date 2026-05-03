@@ -1,7 +1,10 @@
 package in.azhar.S3FileUpload.service;
 
+import com.amazonaws.HttpMethod;
 import com.amazonaws.services.s3.AmazonS3;
+import com.amazonaws.services.s3.model.GeneratePresignedUrlRequest;
 import com.amazonaws.services.s3.model.PutObjectRequest;
+import in.azhar.S3FileUpload.dto.FileDownloadResponse;
 import in.azhar.S3FileUpload.dto.FileResponse;
 import in.azhar.S3FileUpload.entity.FileEntity;
 import in.azhar.S3FileUpload.entity.User;
@@ -16,7 +19,9 @@ import org.springframework.web.multipart.MultipartFile;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.net.URL;
 import java.time.LocalDateTime;
+import java.util.Date;
 import java.util.List;
 import java.util.UUID;
 
@@ -134,4 +139,51 @@ public class FileService {
 
         return new FileResponse(newFileName, url, newFile.getSize());
     }
+
+
+    public FileDownloadResponse getFileSecure(String fileName, String authHeader) {
+
+        // 1 -> Extracting user from JWT
+        String token = authHeader.substring(7);
+        String email = jwtUtil.extractEmail(token);
+
+        User user = userRepository.findByEmail(email)
+                .orElseThrow(() -> new RuntimeException("User not found"));
+
+        // 2 -> File fetch
+        FileEntity file = getFile(fileName);
+
+        // 3 -> Access check
+        if (!orderService.hasAccess(user.getId(), file.getCourseId())) {
+            throw new RuntimeException("Access denied ");
+        }
+
+        // 4-> Generating signed URL using helper method
+        String signedUrl = generatePresignedUrl(fileName);
+
+        // 5 -> Returning signed URL along with file metadata
+        return new FileDownloadResponse(
+                file.getFileName(),
+                file.getOriginalName(),
+                file.getSize(),
+                file.getContentType(),
+                signedUrl
+        );
+    }
+
+
+    public String generatePresignedUrl(String fileName) {
+
+        Date expiration = new Date(System.currentTimeMillis() + 1000 * 60 * 5); // 5 min
+
+        GeneratePresignedUrlRequest request =
+                new GeneratePresignedUrlRequest(bucket, fileName)
+                        .withMethod(HttpMethod.GET)
+                        .withExpiration(expiration);
+
+        URL url = amazonS3.generatePresignedUrl(request);
+
+        return url.toString();
+    }
+
 }

@@ -30,8 +30,9 @@ public class FileController {
 
     // USER + ADMIN
     @GetMapping("/{fileName}")
-    public ResponseEntity<?> getFile(@PathVariable String fileName) {
-        return ResponseEntity.ok(fileService.getFile(fileName));
+    public ResponseEntity<?> getFile(@PathVariable String fileName,
+                                     @RequestHeader("Authorization") String authHeader) {
+        return ResponseEntity.ok(fileService.getFileSecure(fileName, authHeader));
     }
 
     // USER + ADMIN access
