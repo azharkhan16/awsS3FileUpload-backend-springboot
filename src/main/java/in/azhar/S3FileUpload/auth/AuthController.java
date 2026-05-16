@@ -7,12 +7,10 @@ import in.azhar.S3FileUpload.entity.User;
 import in.azhar.S3FileUpload.exception.InvalidCredentialsException;
 import in.azhar.S3FileUpload.repository.UserRepository;
 import in.azhar.S3FileUpload.security.JwtUtil;
+import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.password.PasswordEncoder;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequestMapping("/auth")
@@ -28,7 +26,7 @@ public class AuthController {
     private PasswordEncoder encoder;
 
     @PostMapping("/register")
-    public String register(@RequestBody AuthRequest request) {
+    public String register(@Valid @RequestBody AuthRequest request) {
 
         if (repo.findByEmail(request.getEmail()).isPresent()) {
             throw new RuntimeException("User already exists! Try with different email-ID");
@@ -44,8 +42,9 @@ public class AuthController {
         return "User registered successfully";
     }
 
+
     @PostMapping("/login")
-    public AuthResponse login(@RequestBody AuthRequest request) {
+    public AuthResponse login(@Valid @RequestBody AuthRequest request) {
 
         User user = repo.findByEmail(request.getEmail())
                 .orElseThrow(() -> new InvalidCredentialsException("Invalid email or password."));
